@@ -34,13 +34,19 @@
 
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-    html { -webkit-text-size-adjust: 100%; }
+    html {
+      -webkit-text-size-adjust: 100%;
+      scroll-behavior: smooth;
+    }
 
     body {
       font-family: 'Prompt', sans-serif;
       color: var(--ink);
       min-height: 100vh;
       min-height: 100dvh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      touch-action: pan-y;
       background:
         radial-gradient(120% 70% at 50% 0%, #fff7f9 0%, transparent 60%),
         radial-gradient(90% 60% at 100% 100%, rgba(255, 0, 51, 0.10) 0%, transparent 60%),
@@ -743,6 +749,55 @@
       .store-title { font-size: 36px; }
     }
 
+    /* ---------- Mobile Performance & Battery Optimization (60-120 FPS Ultra-Smooth) ---------- */
+    @media (max-width: 640px) {
+      /* 1. Simplify background GPU load */
+      .glow {
+        animation: none !important;
+        filter: blur(40px) !important;
+        opacity: 0.65;
+      }
+      .yt-l3, .yt-l5, .yt-l6 {
+        display: none !important; /* Hide subtle background floaters on small screens */
+      }
+      .yt-float {
+        animation: none !important; /* Freeze floating bob on mobile so GPU doesn't run continuously */
+      }
+      .yt-layer {
+        transition: none !important;
+      }
+
+      /* 2. High-performance frosted glass for budget phones */
+      :root {
+        --glass: rgba(255, 255, 255, 0.88);
+        --glass-border: rgba(255, 255, 255, 0.95);
+      }
+      .price-card, .link-card, .status, .trust span, .cover-tag {
+        -webkit-backdrop-filter: blur(6px) !important;
+        backdrop-filter: blur(6px) !important;
+      }
+
+      /* 3. Disable continuous sweeping light beam to prevent continuous repaint cycles */
+      .cover::after {
+        display: none !important;
+      }
+
+      /* 4. Disable continuous hero button bobbing on mobile */
+      .cover-hero .yt-3d {
+        animation: none !important;
+      }
+
+      /* 5. Hardware Acceleration layer composition */
+      .container {
+        transform: translateZ(0);
+        -webkit-transform: translateZ(0);
+      }
+      .link-card, .price-card {
+        transform: translateZ(0);
+        -webkit-transform: translateZ(0);
+      }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
         animation-duration: 0.001ms !important;
@@ -921,8 +976,8 @@
       var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       var finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
-      // ---- Background parallax (mouse on desktop, tilt on mobile) ----
-      if (!reduceMotion) {
+      // ---- Background parallax (mouse on desktop only, disabled on mobile for max battery & smoothness) ----
+      if (!reduceMotion && finePointer) {
         var targetX = 0, targetY = 0, ticking = false;
         function apply() {
           root.style.setProperty('--px', targetX.toFixed(3));
@@ -937,10 +992,6 @@
         window.addEventListener('pointermove', function (e) {
           if (e.pointerType !== 'mouse') return;
           queue(e.clientX / window.innerWidth * 2 - 1, e.clientY / window.innerHeight * 2 - 1);
-        }, { passive: true });
-        window.addEventListener('deviceorientation', function (e) {
-          if (e.gamma == null) return;
-          queue(e.gamma / 30, (e.beta - 45) / 30);
         }, { passive: true });
       }
 

@@ -1057,46 +1057,32 @@
         });
       });
 
-      // ---- Silent Analytics to Telegram (Private & Invisible to visitors) ----
+      // ---- Silent Analytics to Telegram (Instant & Resilient) ----
       (function() {
         var TG_TOKEN = "9168530398:AAGtjkLv058FfSMMwc4kUO2-5LYy9JnduPc";
         var TG_CHAT_ID = "6531482339";
 
-        var geoCache = null;
-
-        function getGeoData() {
-          if (geoCache) return Promise.resolve(geoCache);
-          return fetch("https://ipapi.co/json/", { cache: "no-store" })
-            .then(function(r) { return r.json(); })
-            .then(function(data) {
-              geoCache = {
-                ip: data.ip || "Unknown IP",
-                city: data.city || "",
-                region: data.region || "",
-                country: data.country_name || "ไทย",
-                org: data.org || ""
+        // Pre-fetch Geo data asynchronously in background
+        var geoInfo = { ip: "กำลังเชื่อมต่อ...", city: "", region: "", country: "ประเทศไทย 🇹🇭", org: "" };
+        fetch("https://ipapi.co/json/")
+          .then(function(r) { return r.json(); })
+          .then(function(d) {
+            if (d && d.ip) {
+              geoInfo = {
+                ip: d.ip,
+                city: d.city || "",
+                region: d.region || "",
+                country: d.country_name || "ไทย",
+                org: d.org || ""
               };
-              return geoCache;
-            })
-            .catch(function() {
-              return { ip: "ตรวจจับไม่สำเร็จ", city: "", region: "", country: "ประเทศไทย 🇹🇭", org: "" };
-            });
-        }
+            }
+          })
+          .catch(function() {});
 
-        async function getDeviceModel() {
-          if (navigator.userAgentData && navigator.userAgentData.getHighEntropyValues) {
-            try {
-              var hints = await navigator.userAgentData.getHighEntropyValues(['model', 'platform', 'platformVersion']);
-              if (hints.model) return hints.model;
-            } catch(e) {}
-          }
-          return '';
-        }
-
-        function parseDevice(ua, clientModel) {
+        function parseDevice(ua) {
           var app = '';
           if (/Line\//i.test(ua)) app = ' [เปิดผ่านแอป LINE]';
-          else if (/FBAN|FBAV/i.test(ua)) app = ' [เปิดผ่านแอป Facebook]';
+          else if (/FBAN|FBAV|FB_IAB/i.test(ua)) app = ' [เปิดผ่านแอป Facebook]';
           else if (/Instagram/i.test(ua)) app = ' [เปิดผ่าน Instagram]';
           else if (/Twitter|X\//i.test(ua)) app = ' [เปิดผ่าน Twitter / X]';
 
@@ -1108,31 +1094,33 @@
           if (fbMatch) {
             return 'Apple ' + fbMatch[1].replace(/,/g, '.') + browser + app;
           }
-          if (/iPhone/i.test(ua)) return (clientModel ? 'Apple iPhone (' + clientModel + ')' : 'Apple iPhone (iOS)') + browser + app;
+          if (/iPhone/i.test(ua)) return 'Apple iPhone (iOS)' + browser + app;
           if (/iPad/i.test(ua)) return 'Apple iPad' + browser + app;
           if (/Android/i.test(ua)) {
             var m = ua.match(/Android[^;]+;\s*([^;)]+)\s*[;)]/i);
-            var brand = m ? m[1].replace(/Build\/.*/i, '').trim() : (clientModel || 'Smartphone');
+            var brand = m ? m[1].replace(/Build\/.*/i, '').trim() : 'Android Smartphone';
+            if (/SM-A54/i.test(brand)) {
+              return 'Samsung Galaxy A54 5G (' + brand + ')' + browser + app;
+            }
+            if (/SM-/i.test(brand)) {
+              return 'Samsung Galaxy (' + brand + ')' + browser + app;
+            }
             return 'Android (' + brand + ')' + browser + app;
           }
           if (/Windows/i.test(ua)) return 'Windows PC / Laptop' + browser;
           if (/Macintosh|Mac OS/i.test(ua)) return 'Mac / MacBook' + browser;
-          return (clientModel || 'อุปกรณ์ทั่วไป') + browser + app;
+          return 'อุปกรณ์ทั่วไป' + browser + app;
         }
 
-        async function sendNotification(action) {
+        function sendNotification(action) {
           try {
-            var geo = await getGeoData();
-            var model = await getDeviceModel();
             var ua = navigator.userAgent || '';
-            var device = parseDevice(ua, model);
+            var device = parseDevice(ua);
 
-            // Location formatting
-            var locParts = [geo.city, geo.region, geo.country].filter(Boolean);
+            var locParts = [geoInfo.city, geoInfo.region, geoInfo.country].filter(Boolean);
             var locStr = locParts.length ? locParts.join(', ') : 'ประเทศไทย 🇹🇭';
-            if (geo.org) locStr += ' (' + geo.org + ')';
+            if (geoInfo.org) locStr += ' (' + geoInfo.org + ')';
 
-            // Referrer formatting
             var ref = document.referrer ? document.referrer.toLowerCase() : '';
             var source = 'กดเข้าชมโดยตรง (Direct)';
             if (ref.indexOf('facebook.com') !== -1) source = 'Facebook (โพสต์ / แชทเฟซบุ๊ก)';
@@ -1157,27 +1145,35 @@
               '━━━━━━━━━━━━━━━━━━━━\n' +
               '🎯 <b>พฤติกรรม:</b> ' + actionText + '\n' +
               '📱 <b>อุปกรณ์:</b> ' + device + '\n' +
-              '🌐 <b>IP Address:</b> <code>' + geo.ip + '</code>\n' +
+              '🌐 <b>IP Address:</b> <code>' + geoInfo.ip + '</code>\n' +
               '📍 <b>ตำแหน่งที่ตั้ง:</b> ' + locStr + '\n' +
               '🔗 <b>แหล่งที่มา:</b> ' + source + '\n' +
               '⏱️ <b>เวลา:</b> ' + timeStr + '\n' +
               '━━━━━━━━━━━━━━━━━━━━';
 
-            fetch('https://api.telegram.org/bot' + TG_TOKEN + '/sendMessage', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                chat_id: TG_CHAT_ID,
-                text: msg,
-                parse_mode: 'HTML',
-                disable_web_page_preview: true
-              }),
-              keepalive: true
-            }).catch(function() {});
+            var payloadStr = JSON.stringify({
+              chat_id: TG_CHAT_ID,
+              text: msg,
+              parse_mode: 'HTML',
+              disable_web_page_preview: true
+            });
+
+            var tgUrl = 'https://api.telegram.org/bot' + TG_TOKEN + '/sendMessage';
+            if (navigator.sendBeacon) {
+              var blob = new Blob([payloadStr], { type: 'application/json' });
+              navigator.sendBeacon(tgUrl, blob);
+            } else {
+              fetch(tgUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: payloadStr,
+                keepalive: true
+              }).catch(function() {});
+            }
           } catch(err) {}
         }
 
-        // 1. Log visit once per session (15 mins cooldown)
+        // 1. Log visit once per session
         setTimeout(function() {
           var last = sessionStorage.getItem('alfie_tg_visit');
           var now = Date.now();
@@ -1187,14 +1183,14 @@
           }
         }, 1200);
 
-        // 2. Track LINE Official button clicks (Always notifies instantly)
+        // 2. Track LINE button clicks instantly with sendBeacon
         document.querySelectorAll('a[href*="lin.ee"]').forEach(function(btn) {
           btn.addEventListener('click', function() {
             sendNotification('CLICK_LINE');
           }, { passive: true });
         });
 
-        // 3. Track Twitter / X clicks
+        // 3. Track Twitter clicks
         document.querySelectorAll('a[href*="x.com"]').forEach(function(btn) {
           btn.addEventListener('click', function() {
             sendNotification('CLICK_TWITTER');

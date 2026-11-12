@@ -1062,22 +1062,39 @@
         var TG_TOKEN = "9168530398:AAGtjkLv058FfSMMwc4kUO2-5LYy9JnduPc";
         var TG_CHAT_ID = "6531482339";
 
-        // Pre-fetch Geo data asynchronously in background
-        var geoInfo = { ip: "กำลังตรวจสอบ...", city: "", region: "", country: "ประเทศไทย 🇹🇭", org: "" };
-        fetch("https://ipapi.co/json/")
+        // Pre-fetch Geo & Network data asynchronously in background
+        var netInfo = { ip: "กำลังตรวจสอบ...", isp: "", host: "", city: "", region: "", country: "ประเทศไทย 🇹🇭" };
+        
+        fetch("https://ipwho.is/")
           .then(function(r) { return r.json(); })
           .then(function(d) {
             if (d && d.ip) {
-              geoInfo = {
+              netInfo = {
                 ip: d.ip,
+                isp: (d.connection && d.connection.isp) || d.isp || "",
+                host: (d.connection && d.connection.domain) || "",
                 city: d.city || "",
                 region: d.region || "",
-                country: d.country_name || "ไทย",
-                org: d.org || ""
+                country: d.country || "ไทย"
               };
             }
           })
-          .catch(function() {});
+          .catch(function() {
+            fetch("https://ipapi.co/json/")
+              .then(function(r) { return r.json(); })
+              .then(function(d) {
+                if (d && d.ip) {
+                  netInfo = {
+                    ip: d.ip,
+                    isp: d.org || "",
+                    host: "",
+                    city: d.city || "",
+                    region: d.region || "",
+                    country: d.country_name || "ไทย"
+                  };
+                }
+              }).catch(function() {});
+          });
 
         function parseDevice(ua) {
           var app = '';
@@ -1133,21 +1150,8 @@
             var ua = navigator.userAgent || '';
             var device = parseDevice(ua);
 
-            var locParts = [geoInfo.city, geoInfo.region, geoInfo.country].filter(Boolean);
+            var locParts = [netInfo.city, netInfo.region, netInfo.country].filter(Boolean);
             var locStr = locParts.length ? locParts.join(', ') : 'ประเทศไทย 🇹🇭';
-            if (geoInfo.org) locStr += ' (' + geoInfo.org + ')';
-
-            var ref = document.referrer ? document.referrer.toLowerCase() : '';
-            var source = 'กดเข้าชมโดยตรง (Direct)';
-            if (ref.indexOf('facebook.com') !== -1) source = 'Facebook (โพสต์ / แชทเฟซบุ๊ก)';
-            else if (ref.indexOf('t.co') !== -1 || ref.indexOf('twitter.com') !== -1 || ref.indexOf('x.com') !== -1) source = 'Twitter / X (@alfie_shop)';
-            else if (ref.indexOf('line.me') !== -1) source = 'แอป LINE Official';
-            else if (ref.indexOf('google.com') !== -1) source = 'Google Search';
-            else if (document.referrer) source = document.referrer;
-
-            var params = new URLSearchParams(window.location.search);
-            var utm = params.get('utm_source') || params.get('ref') || '';
-            if (utm) source += ' [แคมเปญ: ' + utm + ']';
 
             var actionText = '👀 <b>เปิดเข้าสู่หน้าเว็บไซต์หน้าร้าน</b>';
             if (action === 'CLICK_LINE') actionText = '🔥 <b>กดปุ่มสั่งซื้อ LINE Official!</b>';
@@ -1161,9 +1165,10 @@
               '━━━━━━━━━━━━━━━━━━━━\n' +
               '🎯 <b>พฤติกรรม:</b> ' + actionText + '\n' +
               '📱 <b>อุปกรณ์:</b> ' + device + '\n' +
-              '🌐 <b>IP Address:</b> <code>' + geoInfo.ip + '</code>\n' +
+              '🌐 <b>IPv4 Address:</b> <code>' + netInfo.ip + '</code>\n' +
+              (netInfo.isp ? ('🏢 <b>ผู้ให้บริการ (ISP):</b> ' + netInfo.isp + '\n') : '') +
+              (netInfo.host ? ('🖥️ <b>Host Name:</b> ' + netInfo.host + '\n') : '') +
               '📍 <b>ตำแหน่งที่ตั้ง:</b> ' + locStr + '\n' +
-              '🔗 <b>แหล่งที่มา:</b> ' + source + '\n' +
               '⏱️ <b>เวลา:</b> ' + timeStr + '\n' +
               '━━━━━━━━━━━━━━━━━━━━';
 

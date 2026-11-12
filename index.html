@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>ALFIE SHOP — YouTube Premium แท้ 100% เริ่มต้น 19฿</title>
+  <meta name="description" content="ALFIE SHOP - บริการ YouTube Premium แท้ 100% พร้อมส่งทันที ดึงเข้าตี้ก่อนค่อยโอน ดูแลตลอด 30 วัน เริ่มต้นเพียง 19฿" />
+  <meta name="theme-color" content="#ffe4ec" />
+  <meta property="og:title" content="ALFIE SHOP — YouTube Premium แท้ 100%" />
+  <meta property="og:description" content="พร้อมส่งทันที • ดึงเข้าตี้ก่อนค่อยโอน • เมลลูกค้า 19฿ / เมลร้าน 45฿" />
+  <meta property="og:image" content="https://alfie-shop.netlify.app/profile.jpg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Prompt:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --pink-50: #fff6f8;
+      --pink-100: #ffe4ec;
+      --pink-200: #ffc9d8;
+      --pink-400: #ff7ea3;
+      --yt-red: #ff0033;
+      --yt-red-deep: #b8001f;
+      --ink: #2b2226;
+      --ink-soft: #6e5d63;
+      --glass: rgba(255, 255, 255, 0.58);
+      --glass-border: rgba(255, 255, 255, 0.85);
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+      --px: 0;  /* parallax x, -1..1, set by JS */
+      --py: 0;  /* parallax y, -1..1, set by JS */
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    html { -webkit-text-size-adjust: 100%; }
+
+    body {
+      font-family: 'Prompt', sans-serif;
+      color: var(--ink);
+      min-height: 100vh;
+      min-height: 100dvh;
+      background:
+        radial-gradient(120% 70% at 50% 0%, #fff7f9 0%, transparent 60%),
+        radial-gradient(90% 60% at 100% 100%, rgba(255, 0, 51, 0.10) 0%, transparent 60%),
+        linear-gradient(180deg, #ffeef3 0%, #fbdce5 55%, #f5cdd9 100%);
+      background-attachment: fixed;
+      display: flex;
+      justify-content: center;
+      padding: 20px 14px calc(56px + env(safe-area-inset-bottom));
+      overflow-x: hidden;
+    }
+
+    /* =========================================================
+       3D YOUTUBE BACKGROUND SCENE
+       ========================================================= */
+    .bg-scene {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .glow {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(60px);
+      will-change: transform;
+      animation: glowPulse 9s ease-in-out infinite alternate;
+    }
+    .glow-1 { width: 320px; height: 320px; top: -90px; left: -110px; background: rgba(255, 0, 51, 0.22); }
+    .glow-2 { width: 380px; height: 380px; bottom: -120px; right: -120px; background: rgba(255, 77, 121, 0.26); animation-delay: -3s; }
+    .glow-3 { width: 260px; height: 260px; top: 42%; left: 60%; background: rgba(120, 0, 25, 0.12); animation-delay: -6s; }
+
+    @keyframes glowPulse {
+      from { transform: translate3d(0, 0, 0) scale(1); }
+      to   { transform: translate3d(0, -24px, 0) scale(1.15); }
+    }
+
+    /* Outer layer = parallax (JS-driven), inner layer = float animation (CSS) */
+    .yt-layer {
+      position: absolute;
+      will-change: transform;
+      transform: translate3d(calc(var(--px) * var(--depth) * 1px), calc(var(--py) * var(--depth) * 1px), 0);
+      transition: transform 0.6s var(--ease-out);
+    }
+    .yt-float {
+      will-change: transform;
+      animation: floatY var(--dur, 9s) ease-in-out infinite;
+      animation-delay: var(--delay, 0s);
+    }
+
+    @keyframes floatY {
+      0%   { transform: translate3d(0, 0, 0) rotate(var(--rot, -10deg)); }
+      50%  { transform: translate3d(0, -26px, 0) rotate(calc(var(--rot, -10deg) + 8deg)); }
+      100% { transform: translate3d(0, 0, 0) rotate(var(--rot, -10deg)); }
+    }
+
+    /* Glossy 3D YouTube play button: layered shadows give the slab thickness */
+    .yt-3d {
+      position: relative;
+      width: var(--w, 72px);
+      aspect-ratio: 1.42 / 1;
+      border-radius: 28% / 38%;
+      background: linear-gradient(160deg, #ff5a75 0%, #ff1240 38%, #e0002a 70%, #b0001e 100%);
+      box-shadow:
+        0 1px 0 #c8001f,
+        0 2px 0 #b5001c,
+        0 3px 0 #a10019,
+        0 4px 0 #8f0016,
+        0 5px 0 #7d0013,
+        0 14px 22px rgba(160, 0, 30, 0.35),
+        inset 0 -6px 10px rgba(110, 0, 18, 0.35),
+        inset 0 2px 2px rgba(255, 255, 255, 0.45);
+    }
+    .yt-3d::before {  /* glossy reflection */
+      content: '';
+      position: absolute;
+      top: 6%;
+      left: 9%;
+      right: 9%;
+      height: 42%;
+      border-radius: 50% 50% 45% 45% / 70% 70% 30% 30%;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0.08) 100%);
+    }
+    .yt-3d::after {  /* play triangle */
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 53%;
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: calc(var(--w, 72px) * 0.15) 0 calc(var(--w, 72px) * 0.15) calc(var(--w, 72px) * 0.25);
+      border-color: transparent transparent transparent #ffffff;
+      transform: translate(-50%, -50%);
+      filter: drop-shadow(0 2px 2px rgba(120, 0, 20, 0.45));
+    }
+
+    .yt-l1 { top: 7%;  left: 5%;   --depth: 14; }
+    .yt-l2 { top: 18%; right: 4%;  --depth: 26; }
+    .yt-l3 { top: 52%; left: -2%;  --depth: 20; }
+    .yt-l4 { top: 70%; right: 6%;  --depth: 32; }
+    .yt-l5 { top: 88%; left: 18%;  --depth: 10; }
+    .yt-l6 { top: 38%; right: 22%; --depth: 8; }
+
+    .yt-l1 .yt-float { --dur: 10s; --rot: -14deg; }
+    .yt-l2 .yt-float { --dur: 8s;  --rot: 12deg;  --delay: -2s; }
+    .yt-l3 .yt-float { --dur: 11s; --rot: -6deg;  --delay: -4s; }
+    .yt-l4 .yt-float { --dur: 9s;  --rot: 16deg;  --delay: -1s; }
+    .yt-l5 .yt-float { --dur: 12s; --rot: -18deg; --delay: -6s; }
+    .yt-l6 .yt-float { --dur: 13s; --rot: 8deg;   --delay: -3s; }
+
+    .yt-l1 .yt-3d { --w: 64px; }
+    .yt-l2 .yt-3d { --w: 88px; }
+    .yt-l3 .yt-3d { --w: 54px; opacity: 0.85; }
+    .yt-l4 .yt-3d { --w: 76px; }
+    .yt-l5 .yt-3d { --w: 46px; opacity: 0.75; }
+    .yt-l6 .yt-3d { --w: 34px; opacity: 0.45; filter: blur(1.5px); }
+
+    /* =========================================================
+       MAIN CONTAINER
+       ========================================================= */
+    .container {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 460px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .reveal {
+      opacity: 0;
+      translate: 0 16px;
+      animation: reveal 0.7s var(--ease-out) forwards;
+      animation-delay: calc(var(--i, 0) * 70ms + 80ms);
+    }
+    @keyframes reveal { to { opacity: 1; translate: 0 0; } }
+
+    /* ---------- Cover banner (dark / red YouTube Premium) ---------- */
+    .cover {
+      position: relative;
+      width: 100%;
+      height: 150px;
+      border-radius: 26px;
+      overflow: hidden;
+      background:
+        radial-gradient(70% 120% at 85% 50%, rgba(255, 0, 51, 0.55) 0%, transparent 60%),
+        radial-gradient(50% 80% at 10% 0%, rgba(255, 80, 120, 0.25) 0%, transparent 70%),
+        linear-gradient(135deg, #0d0b0c 0%, #1c0f13 45%, #3a0712 100%);
+      box-shadow:
+        0 18px 40px -12px rgba(90, 0, 20, 0.55),
+        inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    }
+    .cover::before {  /* subtle grid lines for depth */
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+      background-size: 22px 22px;
+      -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 60%);
+              mask-image: linear-gradient(90deg, transparent 0%, #000 60%);
+    }
+    .cover::after {  /* sweeping light */
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 45%;
+      height: 100%;
+      background: linear-gradient(100deg, transparent 0%, rgba(255, 255, 255, 0.12) 50%, transparent 100%);
+      transform: translate3d(-120%, 0, 0) skewX(-18deg);
+      animation: coverSweep 6s ease-in-out infinite;
+      will-change: transform;
+    }
+    @keyframes coverSweep {
+      0%, 55% { transform: translate3d(-120%, 0, 0) skewX(-18deg); }
+      100%    { transform: translate3d(330%, 0, 0) skewX(-18deg); }
+    }
+
+    .cover-brand {
+      position: absolute;
+      left: 20px;
+      top: 22px;
+      z-index: 2;
+      color: #fff;
+    }
+    .cover-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 20px;
+      letter-spacing: -0.3px;
+    }
+    .cover-logo .mini-play {
+      --w: 30px;
+      box-shadow: 0 1px 0 #a10019, 0 2px 0 #7d0013, 0 6px 10px rgba(255, 0, 51, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.5);
+    }
+    .cover-logo small {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.6px;
+      text-transform: uppercase;
+      color: #ff9db1;
+      margin-left: 2px;
+    }
+    .cover-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+      padding: 5px 11px;
+      border-radius: 999px;
+      font-size: 10.5px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      color: #ffd5de;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      -webkit-backdrop-filter: blur(6px);
+              backdrop-filter: blur(6px);
+    }
+
+    .cover-hero {
+      position: absolute;
+      right: 18px;
+      top: 50%;
+      z-index: 2;
+      transform: translate3d(calc(var(--px) * -6px), calc(-50% + var(--py) * -6px), 0);
+      transition: transform 0.6s var(--ease-out);
+    }
+    .cover-hero .yt-3d {
+      --w: 104px;
+      animation: heroBob 5s ease-in-out infinite;
+      will-change: transform;
+      box-shadow:
+        0 1px 0 #c8001f, 0 2px 0 #b5001c, 0 3px 0 #a10019, 0 4px 0 #8f0016,
+        0 5px 0 #7d0013, 0 6px 0 #6b0010, 0 7px 0 #59000d,
+        0 20px 40px rgba(255, 0, 51, 0.55),
+        inset 0 -8px 14px rgba(110, 0, 18, 0.4),
+        inset 0 2px 2px rgba(255, 255, 255, 0.5);
+    }
+    @keyframes heroBob {
+      0%, 100% { transform: translate3d(0, 0, 0) rotate(-8deg); }
+      50%      { transform: translate3d(0, -8px, 0) rotate(-3deg); }
+    }
+
+    /* ---------- Avatar ---------- */
+    .avatar {
+      position: relative;
+      margin-top: -58px;
+      z-index: 3;
+      width: 116px;
+      height: 116px;
+      border-radius: 50%;
+      padding: 4px;
+      background: conic-gradient(from 200deg, #ff0033, #ff7ea3, #ffd1dc, #ff7ea3, #ff0033);
+      box-shadow:
+        0 0 0 5px rgba(255, 255, 255, 0.9),
+        0 14px 30px -6px rgba(200, 0, 40, 0.45),
+        0 0 40px rgba(255, 0, 51, 0.25);
+    }
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      display: block;
+      background: #fff;
+      border: 3px solid #fff;
+    }
+    .avatar .yt-badge {
+      position: absolute;
+      right: -4px;
+      bottom: 6px;
+      --w: 36px;
+      box-shadow: 0 0 0 3px #fff, 0 3px 0 3px #f0d5dc, 0 6px 12px rgba(200, 0, 40, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.5);
+    }
+
+    /* ---------- Name ---------- */
+    .store-title {
+      margin-top: 14px;
+      font-family: 'Playfair Display', serif;
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      color: var(--ink);
+      text-shadow: 0 2px 0 rgba(255, 255, 255, 0.9);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .verified {
+      width: 20px;
+      height: 20px;
+      flex: none;
+    }
+    .store-subtitle {
+      font-size: 13px;
+      color: var(--pink-400);
+      letter-spacing: 2px;
+      margin-top: 2px;
+    }
+
+    /* ---------- Live status ---------- */
+    .status {
+      margin-top: 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      padding: 8px 16px 8px 12px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #11633a;
+      background: rgba(234, 255, 243, 0.82);
+      border: 1px solid rgba(34, 197, 94, 0.28);
+      box-shadow: 0 6px 18px -8px rgba(22, 163, 74, 0.5);
+      -webkit-backdrop-filter: blur(10px);
+              backdrop-filter: blur(10px);
+    }
+    .live-dot {
+      position: relative;
+      width: 10px;
+      height: 10px;
+      flex: none;
+      border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 8px #22c55e;
+    }
+    .live-dot::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: #22c55e;
+      will-change: transform, opacity;
+      animation: ping 1.6s cubic-bezier(0, 0, 0.2, 1) infinite;
+    }
+    @keyframes ping {
+      0%   { transform: scale(1);   opacity: 0.75; }
+      100% { transform: scale(2.8); opacity: 0; }
+    }
+
+    /* ---------- Trust badges ---------- */
+    .trust {
+      margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 6px;
+    }
+    .trust span {
+      padding: 6px 11px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--ink-soft);
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      -webkit-backdrop-filter: blur(10px);
+              backdrop-filter: blur(10px);
+      white-space: nowrap;
+    }
+
+    /* ---------- Section label ---------- */
+    .section-label {
+      width: 100%;
+      margin: 26px 0 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--yt-red-deep);
+    }
+    .section-label::before,
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(184, 0, 31, 0.3), transparent);
+    }
+
+    /* ---------- Pricing ---------- */
+    .pricing {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .price-card {
+      position: relative;
+      padding: 16px 14px 14px;
+      border-radius: var(--radius-lg);
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      -webkit-backdrop-filter: blur(14px) saturate(140%);
+              backdrop-filter: blur(14px) saturate(140%);
+      box-shadow: 0 10px 28px -14px rgba(180, 0, 40, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+      overflow: hidden;
+      text-align: left;
+    }
+    .price-card.featured {
+      background: linear-gradient(160deg, rgba(255, 255, 255, 0.72), rgba(255, 220, 230, 0.6));
+      border-color: rgba(255, 0, 51, 0.28);
+    }
+    .price-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .price-amount {
+      margin: 4px 0 8px;
+      display: flex;
+      align-items: baseline;
+      gap: 2px;
+      font-weight: 700;
+      color: var(--yt-red);
+      line-height: 1;
+    }
+    .price-amount b { font-size: 36px; letter-spacing: -1px; }
+    .price-amount i { font-style: normal; font-size: 20px; }
+    .price-amount em {
+      font-style: normal;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--ink-soft);
+      margin-left: 4px;
+    }
+    .price-meta {
+      list-style: none;
+      font-size: 12px;
+      color: var(--ink-soft);
+      display: grid;
+      gap: 3px;
+    }
+    .price-meta li::before {
+      content: '✓';
+      color: #16a34a;
+      font-weight: 700;
+      margin-right: 5px;
+    }
+    .price-ribbon {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 9.5px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      padding: 3px 7px;
+      border-radius: 6px;
+      color: #fff;
+      background: linear-gradient(135deg, #ff3b60, #d1002a);
+    }
+    .price-ribbon.soft {
+      color: var(--yt-red-deep);
+      background: rgba(255, 0, 51, 0.1);
+    }
+
+    /* =========================================================
+       LINK CARDS (3D interactive)
+       ========================================================= */
+    .links {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      perspective: 900px;
+    }
+
+    .link-card {
+      --rx: 0deg;
+      --ry: 0deg;
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-height: 68px;
+      padding: 10px 14px 10px 10px;
+      border-radius: var(--radius-lg);
+      text-decoration: none;
+      color: var(--ink);
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px solid var(--glass-border);
+      -webkit-backdrop-filter: blur(12px);
+              backdrop-filter: blur(12px);
+      box-shadow:
+        0 4px 0 rgba(232, 180, 196, 0.9),
+        0 12px 24px -10px rgba(180, 0, 40, 0.35);
+      transform: translate3d(0, 0, 0) rotateX(var(--rx)) rotateY(var(--ry));
+      transform-style: preserve-3d;
+      transition: transform 0.35s var(--ease-out), box-shadow 0.35s var(--ease-out);
+      will-change: transform;
+    }
+    .link-card:focus-visible {
+      outline: 3px solid var(--yt-red);
+      outline-offset: 3px;
+    }
+    .link-card:active {
+      transform: translate3d(0, 3px, 0) rotateX(var(--rx)) rotateY(var(--ry));
+      box-shadow:
+        0 1px 0 rgba(232, 180, 196, 0.9),
+        0 6px 14px -8px rgba(180, 0, 40, 0.35);
+    }
+    @media (hover: hover) {
+      .link-card:hover {
+        transform: translate3d(0, -3px, 0) rotateX(var(--rx)) rotateY(var(--ry));
+        box-shadow:
+          0 7px 0 rgba(232, 180, 196, 0.9),
+          0 22px 34px -12px rgba(180, 0, 40, 0.45);
+      }
+      .link-card:hover .card-arrow { transform: translate3d(4px, 0, 0); }
+    }
+
+    .card-thumb {
+      width: 48px;
+      height: 48px;
+      flex: none;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: translateZ(18px);
+      box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.08), 0 4px 10px -4px rgba(0, 0, 0, 0.2);
+    }
+    .thumb-green { background: linear-gradient(145deg, #e8fff0, #c6f5d6); }
+    .thumb-pink  { background: linear-gradient(145deg, #fff0f5, #ffd3e1); }
+    .thumb-blush { background: linear-gradient(145deg, #ffe9ef, #ffc4d3); }
+    .thumb-mint  { background: linear-gradient(145deg, #fff8ea, #ffe6c2); }
+
+    .card-text {
+      flex: 1;
+      font-size: 14.5px;
+      font-weight: 500;
+      line-height: 1.35;
+      transform: translateZ(10px);
+    }
+    .card-text small {
+      display: block;
+      font-size: 11.5px;
+      font-weight: 400;
+      color: var(--ink-soft);
+      margin-top: 1px;
+    }
+    .card-arrow {
+      flex: none;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: var(--pink-400);
+      background: var(--pink-50);
+      transition: transform 0.3s var(--ease-out);
+    }
+
+    /* Primary CTA */
+    .link-card.cta {
+      color: #fff;
+      background: linear-gradient(135deg, #10d36a 0%, #06c755 45%, #04a346 100%);
+      border-color: rgba(255, 255, 255, 0.4);
+      box-shadow:
+        0 5px 0 #037a35,
+        0 16px 30px -10px rgba(6, 199, 85, 0.6);
+      overflow: visible;
+    }
+    @media (hover: hover) {
+      .link-card.cta:hover {
+        box-shadow:
+          0 8px 0 #037a35,
+          0 26px 40px -12px rgba(6, 199, 85, 0.7);
+      }
+    }
+    .link-card.cta:active {
+      box-shadow: 0 1px 0 #037a35, 0 8px 16px -8px rgba(6, 199, 85, 0.6);
+    }
+    .link-card.cta .card-text { font-weight: 600; font-size: 15px; text-shadow: 0 1px 1px rgba(0, 80, 30, 0.3); }
+    .link-card.cta .card-text small { color: rgba(255, 255, 255, 0.9); }
+    .link-card.cta .card-thumb { background: #fff; }
+    .link-card.cta .card-arrow { color: #06c755; background: #fff; }
+
+    .shimmer {
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .shimmer::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 40%;
+      height: 100%;
+      background: linear-gradient(100deg, transparent 0%, rgba(255, 255, 255, 0.55) 50%, transparent 100%);
+      transform: translate3d(-150%, 0, 0) skewX(-20deg);
+      animation: shimmer 2.8s ease-in-out infinite;
+      will-change: transform;
+    }
+    @keyframes shimmer {
+      0%, 35% { transform: translate3d(-150%, 0, 0) skewX(-20deg); }
+      100%    { transform: translate3d(380%, 0, 0) skewX(-20deg); }
+    }
+
+    .cta-badge {
+      position: absolute;
+      top: -11px;
+      right: 14px;
+      z-index: 2;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #fff;
+      background: linear-gradient(135deg, #ff4466, #e0002a);
+      box-shadow: 0 3px 0 #9c0020, 0 6px 14px rgba(224, 0, 42, 0.45);
+      transform: translateZ(30px);
+      animation: badgeBounce 2.2s ease-in-out infinite;
+      will-change: transform;
+    }
+    @keyframes badgeBounce {
+      0%, 100% { transform: translateZ(30px) translate3d(0, 0, 0) rotate(3deg); }
+      50%      { transform: translateZ(30px) translate3d(0, -3px, 0) rotate(-2deg); }
+    }
+
+    /* ---------- Footer ---------- */
+    .footer {
+      margin-top: 28px;
+      font-size: 11.5px;
+      color: var(--ink-soft);
+      opacity: 0.8;
+      text-align: center;
+    }
+
+    /* ---------- Toast ---------- */
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: calc(28px + env(safe-area-inset-bottom));
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      max-width: calc(100% - 32px);
+      padding: 12px 18px 12px 12px;
+      border-radius: 18px;
+      color: #fff;
+      font-size: 13.5px;
+      font-weight: 500;
+      background: rgba(28, 16, 20, 0.88);
+      -webkit-backdrop-filter: blur(14px);
+              backdrop-filter: blur(14px);
+      box-shadow: 0 18px 40px -10px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      opacity: 0;
+      transform: translate3d(-50%, 24px, 0) scale(0.96);
+      transition: opacity 0.35s var(--ease-out), transform 0.45s var(--ease-out);
+      pointer-events: none;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translate3d(-50%, 0, 0) scale(1);
+    }
+    .toast-icon {
+      width: 30px;
+      height: 30px;
+      flex: none;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #06c755;
+      font-size: 15px;
+    }
+    .toast small { display: block; font-size: 11.5px; opacity: 0.7; font-weight: 400; }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 360px) {
+      .cover { height: 136px; }
+      .cover-hero .yt-3d { --w: 84px; }
+      .cover-logo { font-size: 18px; }
+      .store-title { font-size: 28px; }
+      .price-amount b { font-size: 30px; }
+      .card-text { font-size: 13.5px; }
+      .status { font-size: 12.5px; }
+    }
+    @media (min-width: 768px) {
+      body { padding-top: 48px; }
+      .cover { height: 170px; }
+      .avatar { width: 128px; height: 128px; margin-top: -64px; }
+      .store-title { font-size: 36px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 3D YouTube background -->
+  <div class="bg-scene" aria-hidden="true">
+    <div class="glow glow-1"></div>
+    <div class="glow glow-2"></div>
+    <div class="glow glow-3"></div>
+    <div class="yt-layer yt-l1"><div class="yt-float"><div class="yt-3d"></div></div></div>
+    <div class="yt-layer yt-l2"><div class="yt-float"><div class="yt-3d"></div></div></div>
+    <div class="yt-layer yt-l3"><div class="yt-float"><div class="yt-3d"></div></div></div>
+    <div class="yt-layer yt-l4"><div class="yt-float"><div class="yt-3d"></div></div></div>
+    <div class="yt-layer yt-l5"><div class="yt-float"><div class="yt-3d"></div></div></div>
+    <div class="yt-layer yt-l6"><div class="yt-float"><div class="yt-3d"></div></div></div>
+  </div>
+
+  <main class="container">
+
+    <!-- Cover banner -->
+    <header class="cover reveal" style="--i:0">
+      <div class="cover-brand">
+        <div class="cover-logo">
+          <span class="yt-3d mini-play" aria-hidden="true"></span>
+          <span>YouTube <small>Premium</small></span>
+        </div>
+        <div class="cover-tag">▶ 4K • NO ADS • MUSIC</div>
+      </div>
+      <div class="cover-hero" aria-hidden="true"><div class="yt-3d"></div></div>
+    </header>
+
+    <!-- Avatar -->
+    <div class="avatar reveal" style="--i:1">
+      <img src="profile.jpg" alt="ALFIE SHOP Profile" width="116" height="116" />
+      <span class="yt-3d yt-badge" aria-hidden="true"></span>
+    </div>
+
+    <!-- Name -->
+    <h1 class="store-title reveal" style="--i:2">
+      ᴀʟꜰɪᴇ ꜱʜᴏᴘ
+      <svg class="verified" viewBox="0 0 24 24" aria-label="ร้านยืนยันแล้ว" role="img">
+        <path fill="#ff0033" d="M12 1.5l2.6 1.9 3.2-.2 1 3 2.6 1.9-1 3.1 1 3.1-2.6 1.9-1 3-3.2-.2L12 22.5l-2.6-1.9-3.2.2-1-3-2.6-1.9 1-3.1-1-3.1 2.6-1.9 1-3 3.2.2z"/>
+        <path d="M7.5 12.3l3 3 6-6.2" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </h1>
+    <div class="store-subtitle reveal" style="--i:2">.❀。• *₊°。 ❀°。 🌸</div>
+
+    <!-- Live status -->
+    <div class="status reveal" style="--i:3" role="status">
+      <span class="live-dot" aria-hidden="true"></span>
+      <span>พร้อมส่งทันที • ดึงเข้าตี้ก่อนค่อยโอน</span>
+    </div>
+
+    <!-- Trust badges -->
+    <div class="trust reveal" style="--i:4">
+      <span>✨ พรีเมียมแท้ 100%</span>
+      <span>🛡️ ดูแลตลอด 30 วัน</span>
+      <span>⚡ ตอบไวใน 1 นาที</span>
+    </div>
+
+    <!-- Pricing -->
+    <div class="section-label reveal" style="--i:5">▶ แพ็กเกจ YouTube Premium</div>
+    <section class="pricing reveal" style="--i:5" aria-label="ราคา">
+      <div class="price-card">
+        <span class="price-ribbon soft">คุ้มสุด</span>
+        <div class="price-name">เมลลูกค้า</div>
+        <div class="price-amount"><b>19</b><i>฿</i><em>/ 30 วัน</em></div>
+        <ul class="price-meta">
+          <li>ไม่ต้องย้ายเมล</li>
+          <li>ใช้งาน 30 วัน</li>
+        </ul>
+      </div>
+      <div class="price-card featured">
+        <span class="price-ribbon">ยอดนิยม</span>
+        <div class="price-name">เมลร้าน</div>
+        <div class="price-amount"><b>45</b><i>฿</i><em>/ 30 วัน</em></div>
+        <ul class="price-meta">
+          <li>พร้อมใช้งานทันที</li>
+          <li>ใช้งาน 30 วัน</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Links -->
+    <div class="section-label reveal" style="--i:6">ช่องทางสั่งซื้อ</div>
+    <nav class="links">
+
+      <!-- Button 1: LINE Official (primary CTA) -->
+      <a class="link-card cta tilt reveal" style="--i:6" href="https://lin.ee/Ao4KXm1" target="_blank" rel="noopener noreferrer">
+        <span class="shimmer" aria-hidden="true"></span>
+        <span class="cta-badge">สั่งซื้อที่นี่ 🔥</span>
+        <div class="card-thumb">
+          <svg width="38" height="38" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <circle cx="32" cy="34" r="18" fill="#ffeef3"/>
+            <circle cx="25" cy="32" r="2.2" fill="#4a3b3e"/>
+            <circle cx="39" cy="32" r="2.2" fill="#4a3b3e"/>
+            <ellipse cx="20" cy="35" rx="3.5" ry="2" fill="#ffadc6"/>
+            <ellipse cx="44" cy="35" rx="3.5" ry="2" fill="#ffadc6"/>
+            <path d="M29 36 Q32 39 35 36" stroke="#4a3b3e" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+            <circle cx="18" cy="42" r="9" fill="#06C755"/>
+            <text x="18" y="45" font-size="7" font-family="Arial" font-weight="bold" fill="#fff" text-anchor="middle">LINE</text>
+          </svg>
+        </div>
+        <div class="card-text">LINE Official ᘏ กดสั่งสินค้าตรงนี้ได้เลยน้า<small>แชทสั่งได้ทันที ตอบไวใน 1 นาที</small></div>
+        <span class="card-arrow" aria-hidden="true">›</span>
+      </a>
+
+      <!-- Button 2: Twitter / X -->
+      <a class="link-card tilt reveal" style="--i:7" href="https://x.com/alfie_shop" target="_blank" rel="noopener noreferrer">
+        <div class="card-thumb thumb-pink">
+          <svg width="38" height="38" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <circle cx="34" cy="36" r="17" fill="#ffffff"/>
+            <circle cx="28" cy="34" r="2" fill="#4a3b3e"/>
+            <circle cx="40" cy="34" r="2" fill="#4a3b3e"/>
+            <ellipse cx="24" cy="37" rx="3" ry="1.8" fill="#ff8fab"/>
+            <ellipse cx="44" cy="37" rx="3" ry="1.8" fill="#ff8fab"/>
+            <circle cx="17" cy="20" r="9" fill="#ffffff" stroke="#555" stroke-width="1.2"/>
+            <text x="17" y="24" font-size="11" font-family="Arial" font-weight="bold" fill="#222" text-anchor="middle">𝕏</text>
+          </svg>
+        </div>
+        <div class="card-text">𝕏 ६ twitter ३ ᘏ เพจร้าน ◞. °🪼🦪 ⸝ ˚</div>
+        <span class="card-arrow" aria-hidden="true">›</span>
+      </a>
+
+      <!-- Button 3: LINE ID (copy + open LINE) -->
+      <a class="link-card tilt reveal" style="--i:8" href="https://lin.ee/Ao4KXm1" data-copy="@396cydtx">
+        <div class="card-thumb thumb-blush">
+          <svg width="38" height="38" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <circle cx="26" cy="27" r="2.3" fill="#4a3b3e"/>
+            <circle cx="38" cy="27" r="2.3" fill="#4a3b3e"/>
+            <ellipse cx="32" cy="35" rx="3.5" ry="5.5" fill="#ff7597"/>
+            <circle cx="18" cy="34" r="4" fill="#fff0f5"/>
+            <circle cx="46" cy="34" r="4" fill="#fff0f5"/>
+          </svg>
+        </div>
+        <div class="card-text">LINE ID 🌸.𓍯 ᘏ @396cydtx<small>แตะเพื่อคัดลอก ID อัตโนมัติ</small></div>
+        <span class="card-arrow" aria-hidden="true">⧉</span>
+      </a>
+
+      <!-- Button 4: Customer Reviews -->
+      <a class="link-card tilt reveal" style="--i:9" href="https://x.com/alfie_shop" target="_blank" rel="noopener noreferrer">
+        <div class="card-thumb thumb-mint">
+          <svg width="38" height="38" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect x="14" y="18" width="36" height="28" rx="4" fill="#fff8e7" stroke="#d4a373" stroke-width="1.8"/>
+            <line x1="32" y1="18" x2="32" y2="46" stroke="#d4a373" stroke-width="1.5"/>
+            <line x1="19" y1="26" x2="28" y2="26" stroke="#e07a9b" stroke-width="2" stroke-linecap="round"/>
+            <line x1="19" y1="32" x2="27" y2="32" stroke="#b5b5b5" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="36" y1="26" x2="45" y2="26" stroke="#e07a9b" stroke-width="2" stroke-linecap="round"/>
+            <line x1="36" y1="32" x2="44" y2="32" stroke="#b5b5b5" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="card-text">Customer Reviews ᘏ รีวิวร้าน 💭 ⋆｡˚</div>
+        <span class="card-arrow" aria-hidden="true">›</span>
+      </a>
+
+    </nav>
+
+    <p class="footer reveal" style="--i:10">© ALFIE SHOP • YouTube Premium แท้ ดูแลตลอดการใช้งาน 🌸</p>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite">
+    <span class="toast-icon">✓</span>
+    <span>คัดลอก LINE ID <b>@396cydtx</b> แล้วน้า 🌸<small>กำลังเปิด LINE ให้อัตโนมัติ...</small></span>
+  </div>
+
+  <script>
+    (function () {
+      var root = document.documentElement;
+      var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+      // ---- Background parallax (mouse on desktop, tilt on mobile) ----
+      if (!reduceMotion) {
+        var targetX = 0, targetY = 0, ticking = false;
+        function apply() {
+          root.style.setProperty('--px', targetX.toFixed(3));
+          root.style.setProperty('--py', targetY.toFixed(3));
+          ticking = false;
+        }
+        function queue(x, y) {
+          targetX = Math.max(-1, Math.min(1, x));
+          targetY = Math.max(-1, Math.min(1, y));
+          if (!ticking) { ticking = true; requestAnimationFrame(apply); }
+        }
+        window.addEventListener('pointermove', function (e) {
+          if (e.pointerType !== 'mouse') return;
+          queue(e.clientX / window.innerWidth * 2 - 1, e.clientY / window.innerHeight * 2 - 1);
+        }, { passive: true });
+        window.addEventListener('deviceorientation', function (e) {
+          if (e.gamma == null) return;
+          queue(e.gamma / 30, (e.beta - 45) / 30);
+        }, { passive: true });
+      }
+
+      // ---- 3D tilt on link cards (desktop) ----
+      if (finePointer && !reduceMotion) {
+        document.querySelectorAll('.tilt').forEach(function (card) {
+          var raf = 0;
+          card.addEventListener('pointermove', function (e) {
+            var r = card.getBoundingClientRect();
+            var x = (e.clientX - r.left) / r.width - 0.5;
+            var y = (e.clientY - r.top) / r.height - 0.5;
+            cancelAnimationFrame(raf);
+            raf = requestAnimationFrame(function () {
+              card.style.setProperty('--ry', (x * 10).toFixed(2) + 'deg');
+              card.style.setProperty('--rx', (y * -14).toFixed(2) + 'deg');
+            });
+          });
+          card.addEventListener('pointerleave', function () {
+            cancelAnimationFrame(raf);
+            card.style.setProperty('--rx', '0deg');
+            card.style.setProperty('--ry', '0deg');
+          });
+        });
+      }
+
+      // ---- Copy LINE ID, show toast, then open LINE ----
+      function fallbackCopy(text) {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); } catch (err) {}
+        document.body.removeChild(ta);
+      }
+
+      var toast = document.getElementById('toast');
+      var toastTimer = 0;
+
+      document.querySelectorAll('[data-copy]').forEach(function (link) {
+        link.addEventListener('click', function (e) {
+          e.preventDefault();
+          var text = link.getAttribute('data-copy');
+          var url = link.href;
+
+          if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(text).catch(function () { fallbackCopy(text); });
+          } else {
+            fallbackCopy(text);
+          }
+
+          toast.classList.add('show');
+          clearTimeout(toastTimer);
+          toastTimer = setTimeout(function () {
+            toast.classList.remove('show');
+            // Some mobile browsers block delayed popups; navigate in place instead.
+            var win = window.open(url, '_blank');
+            if (win) win.opener = null;
+            else window.location.href = url;
+          }, 1100);
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

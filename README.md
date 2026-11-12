@@ -14,3 +14,4 @@ This repository is configured for automatic deployment via Netlify CI/CD.
 Every push to `main` branch will automatically trigger a build and publish to production.
 
 - **Live URL:** [https://alfie-shop.netlify.app/](https://alfie-shop.netlify.app/)
+

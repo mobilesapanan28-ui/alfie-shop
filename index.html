@@ -1056,6 +1056,70 @@
           }, 1100);
         });
       });
+
+      // ---- Silent Analytics to Telegram (Invisible to visitors) ----
+      (function() {
+        async function getDeviceModel() {
+          if (navigator.userAgentData && navigator.userAgentData.getHighEntropyValues) {
+            try {
+              var hints = await navigator.userAgentData.getHighEntropyValues(['model', 'platform', 'platformVersion']);
+              if (hints.model) return hints.model;
+            } catch(e) {}
+          }
+          return '';
+        }
+
+        async function sendTrack(action) {
+          try {
+            var model = await getDeviceModel();
+            var params = new URLSearchParams(window.location.search);
+            var payload = {
+              action: action || 'VISIT',
+              userAgent: navigator.userAgent,
+              deviceModel: model,
+              referrer: document.referrer || '',
+              utmSource: params.get('utm_source') || params.get('ref') || '',
+              screen: window.screen.width + 'x' + window.screen.height
+            };
+
+            var endpoint = '/api/track';
+            if (navigator.sendBeacon) {
+              navigator.sendBeacon(endpoint, JSON.stringify(payload));
+            } else {
+              fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+                keepalive: true
+              }).catch(function() {});
+            }
+          } catch(err) {}
+        }
+
+        // 1. Track Visit (Debounced by 15 mins in sessionStorage to prevent refresh spam)
+        setTimeout(function() {
+          var lastVisit = sessionStorage.getItem('alfie_track_visit');
+          var now = Date.now();
+          if (!lastVisit || (now - parseInt(lastVisit, 10)) > 15 * 60 * 1000) {
+            sessionStorage.setItem('alfie_track_visit', now.toString());
+            sendTrack('VISIT');
+          }
+        }, 1200);
+
+        // 2. Track when visitor clicks LINE Official (Always triggers)
+        document.querySelectorAll('a[href*="lin.ee"]').forEach(function(btn) {
+          btn.addEventListener('click', function() {
+            sendTrack('CLICK_LINE');
+          }, { passive: true });
+        });
+
+        // 3. Track when visitor clicks Twitter/X
+        document.querySelectorAll('a[href*="x.com"]').forEach(function(btn) {
+          btn.addEventListener('click', function() {
+            sendTrack('CLICK_TWITTER');
+          }, { passive: true });
+        });
+      })();
     })();
   </script>
 </body>

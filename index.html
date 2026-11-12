@@ -1082,17 +1082,27 @@
               screen: window.screen.width + 'x' + window.screen.height
             };
 
-            var endpoint = '/api/track';
-            if (navigator.sendBeacon) {
-              navigator.sendBeacon(endpoint, JSON.stringify(payload));
-            } else {
-              fetch(endpoint, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
-                keepalive: true
-              }).catch(function() {});
-            }
+            var primaryEndpoint = 'https://line-alfie-agent.onrender.com/api/track';
+            var fallbackEndpoint = '/api/track';
+            var jsonPayload = JSON.stringify(payload);
+
+            fetch(primaryEndpoint, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: jsonPayload,
+              keepalive: true
+            }).catch(function() {
+              if (navigator.sendBeacon) {
+                navigator.sendBeacon(fallbackEndpoint, jsonPayload);
+              } else {
+                fetch(fallbackEndpoint, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: jsonPayload,
+                  keepalive: true
+                }).catch(function() {});
+              }
+            });
           } catch(err) {}
         }
 

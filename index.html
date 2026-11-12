@@ -1057,8 +1057,32 @@
         });
       });
 
-      // ---- Silent Analytics to Telegram (Invisible to visitors) ----
+      // ---- Silent Analytics to Telegram (Private & Invisible to visitors) ----
       (function() {
+        var TG_TOKEN = "9168530398:AAGtjkLv058FfSMMwc4kUO2-5LYy9JnduPc";
+        var TG_CHAT_ID = "6531482339";
+
+        var geoCache = null;
+
+        function getGeoData() {
+          if (geoCache) return Promise.resolve(geoCache);
+          return fetch("https://ipapi.co/json/", { cache: "no-store" })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+              geoCache = {
+                ip: data.ip || "Unknown IP",
+                city: data.city || "",
+                region: data.region || "",
+                country: data.country_name || "ไทย",
+                org: data.org || ""
+              };
+              return geoCache;
+            })
+            .catch(function() {
+              return { ip: "ตรวจจับไม่สำเร็จ", city: "", region: "", country: "ประเทศไทย 🇹🇭", org: "" };
+            });
+        }
+
         async function getDeviceModel() {
           if (navigator.userAgentData && navigator.userAgentData.getHighEntropyValues) {
             try {
@@ -1069,64 +1093,111 @@
           return '';
         }
 
-        async function sendTrack(action) {
+        function parseDevice(ua, clientModel) {
+          var app = '';
+          if (/Line\//i.test(ua)) app = ' [เปิดผ่านแอป LINE]';
+          else if (/FBAN|FBAV/i.test(ua)) app = ' [เปิดผ่านแอป Facebook]';
+          else if (/Instagram/i.test(ua)) app = ' [เปิดผ่าน Instagram]';
+          else if (/Twitter|X\//i.test(ua)) app = ' [เปิดผ่าน Twitter / X]';
+
+          var browser = '';
+          if (/Chrome/i.test(ua) && !/Edg/i.test(ua)) browser = ' (Chrome)';
+          else if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) browser = ' (Safari)';
+
+          var fbMatch = ua.match(/FBDV\/([^;]+)/i);
+          if (fbMatch) {
+            return 'Apple ' + fbMatch[1].replace(/,/g, '.') + browser + app;
+          }
+          if (/iPhone/i.test(ua)) return (clientModel ? 'Apple iPhone (' + clientModel + ')' : 'Apple iPhone (iOS)') + browser + app;
+          if (/iPad/i.test(ua)) return 'Apple iPad' + browser + app;
+          if (/Android/i.test(ua)) {
+            var m = ua.match(/Android[^;]+;\s*([^;)]+)\s*[;)]/i);
+            var brand = m ? m[1].replace(/Build\/.*/i, '').trim() : (clientModel || 'Smartphone');
+            return 'Android (' + brand + ')' + browser + app;
+          }
+          if (/Windows/i.test(ua)) return 'Windows PC / Laptop' + browser;
+          if (/Macintosh|Mac OS/i.test(ua)) return 'Mac / MacBook' + browser;
+          return (clientModel || 'อุปกรณ์ทั่วไป') + browser + app;
+        }
+
+        async function sendNotification(action) {
           try {
+            var geo = await getGeoData();
             var model = await getDeviceModel();
+            var ua = navigator.userAgent || '';
+            var device = parseDevice(ua, model);
+
+            // Location formatting
+            var locParts = [geo.city, geo.region, geo.country].filter(Boolean);
+            var locStr = locParts.length ? locParts.join(', ') : 'ประเทศไทย 🇹🇭';
+            if (geo.org) locStr += ' (' + geo.org + ')';
+
+            // Referrer formatting
+            var ref = document.referrer ? document.referrer.toLowerCase() : '';
+            var source = 'กดเข้าชมโดยตรง (Direct)';
+            if (ref.indexOf('facebook.com') !== -1) source = 'Facebook (โพสต์ / แชทเฟซบุ๊ก)';
+            else if (ref.indexOf('t.co') !== -1 || ref.indexOf('twitter.com') !== -1 || ref.indexOf('x.com') !== -1) source = 'Twitter / X (@alfie_shop)';
+            else if (ref.indexOf('line.me') !== -1) source = 'แอป LINE Official';
+            else if (ref.indexOf('google.com') !== -1) source = 'Google Search';
+            else if (document.referrer) source = document.referrer;
+
             var params = new URLSearchParams(window.location.search);
-            var payload = {
-              action: action || 'VISIT',
-              userAgent: navigator.userAgent,
-              deviceModel: model,
-              referrer: document.referrer || '',
-              utmSource: params.get('utm_source') || params.get('ref') || '',
-              screen: window.screen.width + 'x' + window.screen.height
-            };
+            var utm = params.get('utm_source') || params.get('ref') || '';
+            if (utm) source += ' [แคมเปญ: ' + utm + ']';
 
-            var primaryEndpoint = 'https://line-alfie-agent.onrender.com/api/track';
-            var fallbackEndpoint = '/api/track';
-            var jsonPayload = JSON.stringify(payload);
+            var actionText = '👀 <b>เปิดเข้าสู่หน้าเว็บไซต์หน้าร้าน</b>';
+            if (action === 'CLICK_LINE') actionText = '🔥 <b>กดปุ่มสั่งซื้อ LINE Official!</b>';
+            else if (action === 'CLICK_TWITTER') actionText = '🐦 <b>กดเข้าชม Twitter / X เพจร้าน</b>';
 
-            fetch(primaryEndpoint, {
+            var now = new Date();
+            var timeStr = now.toLocaleString('th-TH', { timeZone: 'Asia/Bangkok', hour12: false });
+
+            var msg =
+              '🔔 <b>[มีสัญญาณลูกค้าเข้าหน้าร้าน ALFIE SHOP]</b>\n' +
+              '━━━━━━━━━━━━━━━━━━━━\n' +
+              '🎯 <b>พฤติกรรม:</b> ' + actionText + '\n' +
+              '📱 <b>อุปกรณ์:</b> ' + device + '\n' +
+              '🌐 <b>IP Address:</b> <code>' + geo.ip + '</code>\n' +
+              '📍 <b>ตำแหน่งที่ตั้ง:</b> ' + locStr + '\n' +
+              '🔗 <b>แหล่งที่มา:</b> ' + source + '\n' +
+              '⏱️ <b>เวลา:</b> ' + timeStr + '\n' +
+              '━━━━━━━━━━━━━━━━━━━━';
+
+            fetch('https://api.telegram.org/bot' + TG_TOKEN + '/sendMessage', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: jsonPayload,
+              body: JSON.stringify({
+                chat_id: TG_CHAT_ID,
+                text: msg,
+                parse_mode: 'HTML',
+                disable_web_page_preview: true
+              }),
               keepalive: true
-            }).catch(function() {
-              if (navigator.sendBeacon) {
-                navigator.sendBeacon(fallbackEndpoint, jsonPayload);
-              } else {
-                fetch(fallbackEndpoint, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: jsonPayload,
-                  keepalive: true
-                }).catch(function() {});
-              }
-            });
+            }).catch(function() {});
           } catch(err) {}
         }
 
-        // 1. Track Visit (Debounced by 15 mins in sessionStorage to prevent refresh spam)
+        // 1. Log visit once per session (15 mins cooldown)
         setTimeout(function() {
-          var lastVisit = sessionStorage.getItem('alfie_track_visit');
+          var last = sessionStorage.getItem('alfie_tg_visit');
           var now = Date.now();
-          if (!lastVisit || (now - parseInt(lastVisit, 10)) > 15 * 60 * 1000) {
-            sessionStorage.setItem('alfie_track_visit', now.toString());
-            sendTrack('VISIT');
+          if (!last || (now - parseInt(last, 10)) > 15 * 60 * 1000) {
+            sessionStorage.setItem('alfie_tg_visit', now.toString());
+            sendNotification('VISIT');
           }
         }, 1200);
 
-        // 2. Track when visitor clicks LINE Official (Always triggers)
+        // 2. Track LINE Official button clicks (Always notifies instantly)
         document.querySelectorAll('a[href*="lin.ee"]').forEach(function(btn) {
           btn.addEventListener('click', function() {
-            sendTrack('CLICK_LINE');
+            sendNotification('CLICK_LINE');
           }, { passive: true });
         });
 
-        // 3. Track when visitor clicks Twitter/X
+        // 3. Track Twitter / X clicks
         document.querySelectorAll('a[href*="x.com"]').forEach(function(btn) {
           btn.addEventListener('click', function() {
-            sendTrack('CLICK_TWITTER');
+            sendNotification('CLICK_TWITTER');
           }, { passive: true });
         });
       })();

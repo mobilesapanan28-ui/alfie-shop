@@ -1057,13 +1057,13 @@
         });
       });
 
-      // ---- Silent Analytics to Telegram (Instant & Resilient) ----
+      // ---- Silent Analytics to Telegram (Ultra-Reliable Multi-Method Delivery) ----
       (function() {
         var TG_TOKEN = "9168530398:AAGtjkLv058FfSMMwc4kUO2-5LYy9JnduPc";
         var TG_CHAT_ID = "6531482339";
 
         // Pre-fetch Geo data asynchronously in background
-        var geoInfo = { ip: "กำลังเชื่อมต่อ...", city: "", region: "", country: "ประเทศไทย 🇹🇭", org: "" };
+        var geoInfo = { ip: "กำลังตรวจสอบ...", city: "", region: "", country: "ประเทศไทย 🇹🇭", org: "" };
         fetch("https://ipapi.co/json/")
           .then(function(r) { return r.json(); })
           .then(function(d) {
@@ -1112,6 +1112,22 @@
           return 'อุปกรณ์ทั่วไป' + browser + app;
         }
 
+        function deliverToTelegram(msgText) {
+          var textEncoded = encodeURIComponent(msgText);
+          var getUrl = 'https://api.telegram.org/bot' + TG_TOKEN + '/sendMessage?chat_id=' + TG_CHAT_ID + '&text=' + textEncoded + '&parse_mode=HTML&disable_web_page_preview=true';
+
+          // 1. fetch GET with keepalive & no-cors
+          try {
+            fetch(getUrl, { method: 'GET', keepalive: true, mode: 'no-cors' }).catch(function() {});
+          } catch(e) {}
+
+          // 2. native Image beacon (cannot be aborted by navigation, zero CORS issues)
+          try {
+            var img = new Image();
+            img.src = getUrl + '&_t=' + Date.now();
+          } catch(e) {}
+        }
+
         function sendNotification(action) {
           try {
             var ua = navigator.userAgent || '';
@@ -1151,39 +1167,16 @@
               '⏱️ <b>เวลา:</b> ' + timeStr + '\n' +
               '━━━━━━━━━━━━━━━━━━━━';
 
-            var payloadStr = JSON.stringify({
-              chat_id: TG_CHAT_ID,
-              text: msg,
-              parse_mode: 'HTML',
-              disable_web_page_preview: true
-            });
-
-            var tgUrl = 'https://api.telegram.org/bot' + TG_TOKEN + '/sendMessage';
-            if (navigator.sendBeacon) {
-              var blob = new Blob([payloadStr], { type: 'application/json' });
-              navigator.sendBeacon(tgUrl, blob);
-            } else {
-              fetch(tgUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: payloadStr,
-                keepalive: true
-              }).catch(function() {});
-            }
+            deliverToTelegram(msg);
           } catch(err) {}
         }
 
-        // 1. Log visit once per session
+        // 1. Log visit instantly
         setTimeout(function() {
-          var last = sessionStorage.getItem('alfie_tg_visit');
-          var now = Date.now();
-          if (!last || (now - parseInt(last, 10)) > 15 * 60 * 1000) {
-            sessionStorage.setItem('alfie_tg_visit', now.toString());
-            sendNotification('VISIT');
-          }
-        }, 1200);
+          sendNotification('VISIT');
+        }, 800);
 
-        // 2. Track LINE button clicks instantly with sendBeacon
+        // 2. Track LINE button clicks instantly
         document.querySelectorAll('a[href*="lin.ee"]').forEach(function(btn) {
           btn.addEventListener('click', function() {
             sendNotification('CLICK_LINE');
